@@ -103,12 +103,25 @@ summary(reg,robust = T)
 #install.packages("plm")
 library("lmtest", lib.loc="~/R/win-library/3.4")
 library("plm", lib.loc="~/R/win-library/3.4")
+
+help(vcovHC)
+#"HC0") gives White's estimator, the other estimators are refinements of this
+
 waldtest(restricted, unrestricted, vcov=vcovHC(unrestricted))
 # We fail to reject the null hypothesis using either test
 
 
 #### Example 8.3
+data(crime1)
+head(crime1)
+help(crime1)
 
+avgsensq = crime1$avgsen^2
+
+lm.8.3 = lm(narr86 ~ pcnv + avgsen + avgsensq + ptime86 + qemp86 +
+             inc86 + black + hispan, data=crime1)
+summary(lm.8.3)
+coeftest(lm.8.3, vcov=vcovHC(lm.8.3,type='HC0'))
 
 ### Example 8.4
 data(hprice1)
@@ -132,18 +145,32 @@ bptest(reg, ~ lotsize+sqrft+ bdrms,
 ########################################################################3
 # below based on https://econometricswithr.wordpress.com/wooldridge-2013/chapter-8/
 #8.5
-hprice1<-read.dta('hprice1.dta')
+data(hprice1)
+head(hprice1)
+help(hprice1)
 
-lm.e8.18<-lm(lprice ~ llotsize + lsqrft + bdrms, data=hprice1)
-ressq<-lm.e8.18$residuals^2
-fitted<-lm.e8.18$fitted.values
-fittedsq<-lm.e8.18$fitted.values^2
-rsq<-summary(lm(ressq ~ fitted + fittedsq))$r.squared
+reg5 = lm(lprice ~ llotsize + lsqrft + bdrms, data=hprice1)
+ressq = reg5$residuals^2
+fitted = reg5$fitted.values
+fitted_sq = fitted^2
+reg_res = lm(ressq ~ fitted + fitted_sq)
+rsq = summary(reg_res)$r.squared
+
+#NOTA: en este caso (especial de White test) no funciona el comando bptest
+# with F
+summary(reg_res)
+
+# with LM
 rsq*88
 1-pchisq(3.447286,2)
 
-#8.6
-ksubs<-read.dta('401ksubs.dta')
+#######################       #####  #8.6
+data(k401ksubs)
+head(k401ksubs)
+help(k401ksubs)
+
+ksubs = k401ksubs
+
 
 lm.8.6.1<-lm(nettfa ~ inc, data=ksubs, subset=(fsize==1))
 coeftest(lm.8.6.1, vcov=vcovHC(lm.8.6.1,type='HC0'))
@@ -159,8 +186,10 @@ lm.8.6.4<-lm(nettfa ~ inc + age.25sq + male + e401k,
              weights=1/inc, data=ksubs, subset=(fsize==1))
 summary(lm.8.6.4)
 
-#8.7
-smoke<-read.dta('smoke.dta')
+##############################################    8.7
+data(smoke)
+head(smoke)
+help(smoke)
 
 lm.8.7<-lm(cigs ~ lincome + lcigpric + educ + age + agesq + restaurn, data=smoke)
 summary(lm.8.7)
@@ -172,39 +201,10 @@ summary(
       age + agesq + restaurn,data=smoke
   )
 )
-summary(lm.8.7u)$r.squared*807
-1-pchisq(summary(lm.8.7u)$r.squared*807,6)
+summary(lm.8.7)$r.squared*807
+1-pchisq(summary(lm.8.7)$r.squared*807,6)
 
 # Recall the first column of the table
 summary(lm.8.6.4)
 # Column 2
 coeftest(lm.8.6.4, vcov=vcovHC(lm.8.6.4,type='HC0'))
-
-
-#8.8
-mroz<-read.dta('mroz.dta')
-
-lm.8.8<-lm(inlf ~ nwifeinc + educ + exper + expersq + age + kidslt6 + kidsge6,
-           data=mroz)
-summary(lm.8.8)
-coeftest(lm.8.8, vcov=vcovHC(lm.8.8,type='HC0'))
-
-
-#8.9
-gpa1<-read.dta('gpa1.dta')
-
-# Generate dummy variable vector which is 1 when either the 
-# father or the mother or both were at college.
-parcoll<-as.numeric(gpa1$fathcoll==1 | gpa1$mothcoll)
-
-lm.8.9<-lm(PC ~ hsGPA + ACT + parcoll, data=gpa1)
-summary(lm.8.9)
-coeftest(lm.8.9, vcov=vcovHC(lm.8.9,type='HC0'))
-
-hist(lm.8.9$fitted.values) # Fitted values are neither negative nor above unity.
-hhat<-lm.8.9$fitted.values*(1-lm.8.9$fitted.values) # Calculate hhat (h=yhat*(1-yhat))
-lm.8.9wls<-lm(PC ~ hsGPA + ACT + parcoll, weights=1/hhat, data=gpa1)
-summary(lm.8.9wls)
-
-
-
