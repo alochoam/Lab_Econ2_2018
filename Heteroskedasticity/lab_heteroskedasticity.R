@@ -5,7 +5,7 @@
 # Licence Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)
 
 # ----------------------------------
-# Tercera sesión de laboratorio en R
+# Topic: Heteroskedsaticity.
 # ----------------------------------
 
 # Obtener la ruta de trabajo actual
@@ -20,13 +20,6 @@ setwd("C://Users/Humberto Martínez/Documents/GitHub/Lab_Econ2_2018/Heteroskedas
 getwd()
 
 # Para guardar el script sólo es: ctrl+s
-
-# -------------------------------------------------------------------------
-
-# En esta sesión
-
-# Data frames
-# Plots
 
 # ---------------------------------------------------------
 # Dataframes & plots
